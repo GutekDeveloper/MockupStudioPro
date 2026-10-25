@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
+    <link rel="icon" type="image/jpeg" href="favicon_mockup.npg">
+    <link rel="shortcut icon" href="favicon_mockup.png">
+    <title>Mockup Studio Pro — Gutek Developer</title>
+    <!-- Eksport ma dwa źródła biblioteki. Usunięto zewnętrzny font, który bywa problematyczny przy eksporcie z file://. -->
+    <script>
+        (function loadHtmlToImage() {
+            const sources = [
+                'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js',
+                'https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.min.js'
+            ];
+            let index = 0;
+            function loadNext() {
+                if (index >= sources.length) {
+                    window.__htmlToImageLoadFailed = true;
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = sources[index++];
+                script.crossOrigin = 'anonymous';
+                script.referrerPolicy = 'no-referrer';
+                script.onload = () => { window.__htmlToImageLoadFailed = false; };
+                script.onerror = loadNext;
+                document.head.appendChild(script);
+            }
+            loadNext();
+        })();
+    </script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --panel-border: rgba(255, 255, 255, 0.12);
+            --accent-color: #818cf8;
+            --accent-hover: #6366f1;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --font-family: Inter, 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        [hidden] { display: none !important; }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            border-bottom: 1px solid var(--panel-border);
+            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.72);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .brand-logo { display: block; width: 42px; height: 42px; object-fit: contain; flex: 0 0 auto; }
+        .logo-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+        .logo-name {
+            font-size: 1.18rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+            background: linear-gradient(to right, #a5b4fc, #e9a8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo-description {
+            color: var(--text-muted);
+            -webkit-text-fill-color: var(--text-muted);
+            font-size: 0.69rem;
+            line-height: 1.4;
+            font-weight: 400;
+            max-width: 760px;
+        }
+        .header-hint { font-size: 0.82rem; color: var(--text-muted); text-align: right; flex: 0 0 auto; }
+        kbd { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font: inherit; }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(390px, 520px) minmax(0, 1fr);
+            align-items: start;
+            gap: 26px;
+            padding: 28px 32px 36px;
+            max-width: 1660px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .control-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            height: fit-content;
+            min-width: 0;
+        }
+
+        .panel-section { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+        .panel-section-title {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.085em;
+            color: #a5b4fc;
+            font-weight: 800;
+            margin-bottom: 1px;
+        }
+        .section-hint { color: var(--text-muted); font-size: 0.76rem; line-height: 1.5; }
+        .form-group { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+        label { font-size: 0.82rem; font-weight: 500; color: var(--text-main); }
+
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            min-width: 0;
+            background: rgba(0, 0, 0, 0.24);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 11px 12px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+        }
+        select { cursor: pointer; }
+        select option { background: #17172d; color: #f8fafc; }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+        }
+        textarea { resize: vertical; min-height: 68px; line-height: 1.45; }
+
+        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .three-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .color-pickers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-input-wrapper {
+            display: flex; align-items: center; gap: 8px;
+            min-width: 0;
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 7px 9px;
+        }
+        input[type="color"] { -webkit-appearance: none; appearance: none; border: none; width: 28px; height: 28px; border-radius: 7px; cursor: pointer; background: transparent; flex: 0 0 auto; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; }
+        .color-value { color: var(--text-muted); font-size: 0.73rem; overflow: hidden; text-overflow: ellipsis; }
+
+        .drop-zone {
+            border: 2px dashed var(--panel-border);
+            border-radius: var(--radius-lg);
+            padding: 21px 14px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+            position: relative;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent-color); background: rgba(99, 102, 241, 0.08); }
+        .drop-zone input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .drop-zone-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; pointer-events: none; }
+        .drop-zone-text strong { color: #c4b5fd; }
+        .gallery-status-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--text-muted); font-size: 0.76rem; }
+
+        .btn-primary, .btn-secondary {
+            border-radius: 11px; font-family: inherit; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+            transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+        }
+        .btn-primary {
+            width: 100%; background: linear-gradient(110deg, #6366f1, #8b5cf6); color: #fff; border: none;
+            padding: 15px 16px; font-size: 0.92rem; font-weight: 700;
+            box-shadow: 0 5px 18px rgba(99, 102, 241, 0.32);
+        }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 22px rgba(99,102,241,0.42); }
+        .btn-primary:disabled { cursor: wait; opacity: 0.7; }
+        .btn-secondary { border: 1px solid var(--panel-border); padding: 7px 10px; color: var(--text-main); background: rgba(255,255,255,0.06); font-size: 0.75rem; }
+        .btn-secondary:hover:not(:disabled) { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); }
+        .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .range-group { display: flex; flex-direction: column; gap: 6px; }
+        .range-label { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .range-value { color: #c4b5fd; font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        input[type="range"] { width: 100%; accent-color: #818cf8; cursor: pointer; }
+        input[type="range"]:disabled { opacity: 0.35; cursor: not-allowed; }
+        .check-row { display: flex; align-items: center; gap: 9px; font-size: 0.82rem; color: var(--text-main); cursor: pointer; }
+        .check-row input { width: 16px; height: 16px; accent-color: #818cf8; }
+        .output-size { border: 1px solid rgba(165,180,252,0.2); background: rgba(99,102,241,0.09); color: #c7d2fe; padding: 10px 12px; border-radius: 10px; font-size: 0.78rem; line-height: 1.5; }
+
+        .preview-area {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-width: 0; min-height: 420px; gap: 10px; padding: 0 0 12px;
+            position: sticky; top: 96px; height: calc(100vh - 110px);
+            align-self: start; z-index: 5;
+        }
+        .preview-hint { text-align: center; color: var(--text-muted); font-size: 0.75rem; line-height: 1.45; max-width: 540px; flex: 0 0 auto; }
+        .export-canvas-target {
+            max-width: 100%;
+            --composition-scale: 0.9;
+            --canvas-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --bg-blur: 0px;
+            width: 427.5px;
+            height: 760px;
+            flex: 0 0 auto;
+            background: var(--canvas-bg);
+            border-radius: calc(28px * var(--composition-scale));
+            padding: calc(28px * var(--composition-scale)) calc(30px * var(--composition-scale));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: calc(24px * var(--composition-scale));
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.38);
+        }
+        .canvas-background-glow {
+            position: absolute; inset: 9%; z-index: 0; border-radius: 48%;
+            background: radial-gradient(ellipse at 30% 30%, #818cf8 0%, transparent 63%), radial-gradient(ellipse at 70% 65%, #c084fc 0%, transparent 65%);
+            filter: blur(0px); opacity: 0; pointer-events: none;
+        }
+        .canvas-text-header { text-align: center; width: 100%; max-width: 440px; z-index: 1; flex: 0 0 auto; overflow-wrap: anywhere; }
+        .canvas-title { font-size: calc(32px * var(--composition-scale)); font-weight: 800; line-height: 1.16; margin-bottom: calc(8px * var(--composition-scale)); color: #fff; }
+        .canvas-subtitle { font-size: calc(16px * var(--composition-scale)); color: #cbd5e1; font-weight: 400; line-height: 1.45; }
+
+        .phone-wrapper {
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            width: var(--phone-stage-width, 276px); height: var(--phone-stage-height, 560px);
+            flex: 0 0 auto;
+            perspective: 1100px;
+            perspective-origin: center center;
+            z-index: 1;
+        }
+        .phone-mockup {
+            width: var(--phone-width, 276px); height: var(--phone-height, 560px);
+            background: #000;
+            border-radius: calc(48px * var(--composition-scale));
+            box-shadow: 0 0 0 calc(12px * var(--composition-scale)) #1e293b,
+                        0 0 0 calc(13px * var(--composition-scale)) rgba(255,255,255,0.16),
+                        0 calc(30px * var(--composition-scale)) calc(60px * var(--composition-scale)) calc(-15px * var(--composition-scale)) rgba(0,0,0,0.72);
+            position: absolute; left: 50%; top: 50%;
+            transform: translate(-50%, -50%) rotateX(var(--phone-rotate-x, 0deg)) rotateY(var(--phone-rotate-y, 0deg)) rotateZ(var(--phone-rotate-z, 0deg));
+            transform-style: preserve-3d;
+            transform-origin: center center;
+            transition: transform 0.32s ease, box-shadow 0.25s ease;
+            overflow: hidden;
+            border: calc(4px * var(--composition-scale)) solid #050505;
+            backface-visibility: visible;
+        }
+        .phone-notch {
+            position: absolute; top: calc(12px * var(--composition-scale)); left: 50%; transform: translateX(-50%);
+            width: calc(90px * var(--composition-scale)); height: calc(25px * var(--composition-scale));
+            background: #000; border-radius: 20px; z-index: 10;
+            display: flex; align-items: center; justify-content: flex-end; padding-right: calc(8px * var(--composition-scale));
+        }
+        .phone-notch::before { content: ''; width: calc(10px * var(--composition-scale)); height: calc(10px * var(--composition-scale)); background: #090d16; border-radius: 50%; border: calc(2px * var(--composition-scale)) solid #1a1f2c; }
+        .phone-home-bar { position: absolute; bottom: calc(8px * var(--composition-scale)); left: 50%; transform: translateX(-50%); width: calc(120px * var(--composition-scale)); height: calc(4px * var(--composition-scale)); background: rgba(255,255,255,0.55); border-radius: 3px; z-index: 10; }
+        .carousel-viewport {
+            width: 100%; height: 100%; display: flex; overflow-x: auto;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .carousel-viewport::-webkit-scrollbar { display: none; }
+        .carousel-slide { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; position: relative; background: #111827; display: flex; align-items: center; justify-content: center; }
+        .carousel-slide img { width: 100%; height: 100%; object-fit: cover; user-select: none; }
+        .empty-state { padding: calc(30px * var(--composition-scale)); text-align: center; color: #94a3b8; font-size: calc(13px * var(--composition-scale)); display: flex; flex-direction: column; align-items: center; gap: calc(12px * var(--composition-scale)); line-height: 1.45; }
+        .empty-state svg { width: calc(48px * var(--composition-scale)); height: calc(48px * var(--composition-scale)); }
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(8px); color: white; display: grid; place-items: center; cursor: pointer; z-index: 20; transition: background 0.2s ease; box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        .nav-arrow:hover { background: rgba(255,255,255,0.3); }
+        .nav-arrow.prev { left: -54px; }
+        .nav-arrow.next { right: -54px; }
+
+        @media (min-width: 1280px) {
+            .control-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 19px 15px; padding: 22px; }
+            .control-panel > .btn-primary { grid-column: 1 / -1; }
+        }
+        @media (max-width: 1120px) {
+            main { display: flex; flex-direction: column; gap: 15px; padding-top: 10px; }
+            .preview-area {
+                order: -1; position: sticky; top: 96px; z-index: 80;
+                width: 100%; height: auto; min-height: 0; padding: 8px 0 11px;
+                background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(16px);
+                border-bottom: 1px solid var(--panel-border); border-radius: 0 0 14px 14px;
+                box-shadow: 0 12px 25px rgba(0,0,0,0.14);
+            }
+            .control-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; width: 100%; }
+            .control-panel > .btn-primary { grid-column: 1 / -1; }
+        }
+        @media (max-width: 640px) {
+            header { padding: 10px 14px; gap: 8px; }
+            .brand-logo { width: 35px; height: 35px; }
+            .logo { gap: 8px; }
+            .logo-name { font-size: 0.94rem; }
+            .logo-description { font-size: 0.63rem; line-height: 1.35; max-width: calc(100vw - 78px); }
+            .header-hint { display: none; }
+            main { padding: 0 10px 24px; gap: 12px; }
+            .preview-area { top: 82px; margin: 0 -10px; width: calc(100% + 20px); padding: 6px 8px 9px; gap: 6px; }
+            .preview-hint { font-size: 0.66rem; max-width: 340px; }
+            .control-panel { display: flex; padding: 15px; gap: 17px; border-radius: 17px; }
+            .panel-section { gap: 9px; }
+            .panel-section-title { font-size: 0.74rem; }
+            .drop-zone { padding: 16px 12px; }
+            textarea { min-height: 58px; }
+            .nav-arrow { display: none; }
+            .output-size { font-size: 0.74rem; }
+        }
+        @media (max-width: 360px) {
+            .header-hint { display: none; }
+            .color-pickers, .two-columns { gap: 7px; }
+            .color-input-wrapper { padding: 6px; gap: 5px; }
+            input[type="color"] { width: 24px; height: 24px; }
+            .logo-name { font-size: 0.88rem; }
+            .logo-description { font-size: 0.6rem; max-width: calc(100vw - 72px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img class="brand-logo" src="gutekikon.png" alt="Logo Gutek Developer">
+            <div class="logo-copy">
+                <span class="logo-name">Mockup Studio Pro</span>
+                <p class="logo-description">Twórz grafiki promocyjne ze zrzutów ekranu. Dobieraj format, tło i perspektywę 3D telefonu, a gotowy projekt pobieraj jako PNG.</p>
+            </div>
+        </div>
+        <div class="header-hint">Wklej obraz przez <kbd>Ctrl+V</kbd></div>
+    </header>
+
+    <main>
+        <section class="control-panel" aria-label="Ustawienia grafiki">
+            <div class="panel-section">
+                <div class="panel-section-title">1. Grafika i galeria</div>
+                <div class="drop-zone" id="dropZone">
+                    <input type="file" id="fileInput" multiple accept="image/*" aria-label="Wybierz zdjęcia">
+                    <div class="drop-zone-text"><strong>Kliknij, aby dodać zdjęcia</strong> lub przeciągnij pliki tutaj.<br>Możesz też wkleić obraz ze schowka.</div>
+                </div>
+                <div class="gallery-status-row">
+                    <span id="galleryStatus" aria-live="polite">Brak zdjęć w galerii</span>
+                    <button class="btn-secondary" id="clearGalleryBtn" type="button" disabled>Wyczyść</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-section-title">2. Tekst grafiki</div>
+                <div class="form-group">
+                    <label for="inputTitle">Tytuł nagłówka</label>
+                    <input type="text" id="inputTitle" value="Nowa wersja aplikacji" placeholder="Wprowadź tytuł..." maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label for="inputSubtitle">Podtytuł / opis</label>
+                    <textarea id="inputSubtitle" rows="2" placeholder="Wprowadź krótki opis..." maxlength="260">Pobierz najnowszą aktualizację i sprawdź innowacyjne funkcje już dziś.</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="textColorPicker">Kolor tekstu</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="textColorPicker" value="#ffffff" aria-label="Kolor tekstu">
+                        <span class="color-value" id="textColorValue">#ffffff</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-section-title">3. Format grafiki</div>
+                <div class="form-group">
+                    <label for="formatSelect">Proporcje i rozmiar eksportu</label>
+                    <select id="formatSelect">
+                        <option value="story">Relacja / Stories — 9:16</option>
+                        <option value="portrait">Post pionowy — 4:5</option>
+                        <option value="square">Kwadrat — 1:1</option>
+                        <option value="landscape">Poziomy — 16:9</option>
+                        <option value="classic">Portret — 3:4</option>
+                        <option value="custom">Własny rozmiar…</option>
+                    </select>
+                </div>
+                <div class="two-columns" id="customDimensions" hidden>
+                    <div class="form-group">
+                        <label for="customWidth">Szerokość (px)</label>
+                        <input type="number" id="customWidth" min="320" max="6000" step="10" value="1080" inputmode="numeric">
+                    </div>
+                    <div class="form-group">
+                        <label for="customHeight">Wysokość (px)</label>
+                        <input type="number" id="customHeight" min="320" max="6000" step="10" value="1920" inputmode="numeric">
+                    </div>
+                </div>
+                <div class="output-size" id="outputSize" aria-live="polite">PNG: 1080 × 1920 px<br>Proporcje: 9:16</div>
+                <p class="section-hint">Podgląd dopasowuje się do ekranu, ale pobrany PNG zachowuje wybrany rozmiar w pikselach.</p>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-section-title">4. Tło, gradient i blur</div>
+                <div class="form-group">
+                    <label for="bgMode">Rodzaj tła</label>
+                    <select id="bgMode">
+                        <option value="solid">Jednolity kolor</option>
+                        <option value="linear" selected>Gradient liniowy</option>
+                        <option value="radial">Gradient radialny</option>
+                    </select>
+                </div>
+                <div class="color-pickers">
+                    <div class="form-group">
+                        <label for="bgColorPicker">Kolor 1</label>
+                        <div class="color-input-wrapper"><input type="color" id="bgColorPicker" value="#1e293b" aria-label="Pierwszy kolor tła"><span class="color-value" id="bgColorValue">#1e293b</span></div>
+                    </div>
+                    <div class="form-group" id="secondColorGroup">
+                        <label for="bgColor2Picker">Kolor 2</label>
+                        <div class="color-input-wrapper"><input type="color" id="bgColor2Picker" value="#312e81" aria-label="Drugi kolor tła"><span class="color-value" id="bgColor2Value">#312e81</span></div>
+                    </div>
+                </div>
+                <div class="range-group" id="gradientAngleGroup">
+                    <div class="range-label"><label for="gradientAngle">Kąt gradientu</label><span class="range-value" id="gradientAngleValue">135°</span></div>
+                    <input type="range" id="gradientAngle" min="0" max="360" step="5" value="135">
+                </div>
+                <div class="range-group">
+                    <label class="check-row" for="blurEnabled"><input type="checkbox" id="blurEnabled"> Miękka, rozmyta poświata tła</label>
+                    <div class="range-label"><label for="blurAmount">Siła rozmycia</label><span class="range-value" id="blurAmountValue">18 px</span></div>
+                    <input type="range" id="blurAmount" min="0" max="48" step="1" value="18" disabled>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-section-title">5. Ustawienie telefonu 3D</div>
+                <div class="form-group">
+                    <label for="phonePreset">Widok telefonu</label>
+                    <select id="phonePreset">
+                        <option value="auto" selected>Auto — dopasuj do formatu</option>
+                        <option value="front">Na wprost</option>
+                        <option value="left3d">Lekko z lewej (3D)</option>
+                        <option value="right3d">Lekko z prawej (3D)</option>
+                        <option value="sideleft">Mocny profil z lewej</option>
+                        <option value="sideright">Mocny profil z prawej</option>
+                        <option value="tilted">Pochylony, dynamiczny</option>
+                        <option value="landscape">Poziomo — obrócony bokiem</option>
+                        <option value="custom">Własne ustawienia</option>
+                    </select>
+                </div>
+                <div class="range-group">
+                    <div class="range-label"><label for="rotateY">Obrót 3D lewo / prawo</label><span class="range-value" id="rotateYValue">0°</span></div>
+                    <input type="range" id="rotateY" min="-80" max="80" step="1" value="0">
+                </div>
+                <div class="range-group">
+                    <div class="range-label"><label for="rotateX">Pochylenie przód / tył</label><span class="range-value" id="rotateXValue">0°</span></div>
+                    <input type="range" id="rotateX" min="-35" max="35" step="1" value="0">
+                </div>
+                <div class="range-group">
+                    <div class="range-label"><label for="rotateZ">Przechylenie ukośne</label><span class="range-value" id="rotateZValue">0°</span></div>
+                    <input type="range" id="rotateZ" min="-20" max="20" step="1" value="0">
+                </div>
+                <button class="btn-secondary" id="resetPhoneBtn" type="button">Przywróć automatyczne ustawienie</button>
+                <p class="section-hint">Wybierz gotowy widok albo dopracuj go suwakami. Ustawienia telefonu zostaną uwzględnione w PNG.</p>
+            </div>
+
+            <button class="btn-primary" id="exportBtn" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Pobierz grafikę (PNG)
+            </button>
+        </section>
+
+        <section class="preview-area" aria-label="Podgląd gotowej grafiki">
+            <div class="export-canvas-target" id="canvasTarget">
+                <div class="canvas-background-glow" id="canvasGlow" aria-hidden="true"></div>
+                <div class="canvas-text-header">
+                    <h1 class="canvas-title" id="displayTitle">Nowa wersja aplikacji</h1>
+                    <p class="canvas-subtitle" id="displaySubtitle">Pobierz najnowszą aktualizację i sprawdź innowacyjne funkcje już dziś.</p>
+                </div>
+                <div class="phone-wrapper" id="phoneWrapper">
+                    <button class="nav-arrow prev" id="prevBtn" type="button" aria-label="Poprzednie zdjęcie">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="phone-mockup" id="phoneMockup">
+                        <div class="phone-notch"></div>
+                        <div class="phone-home-bar"></div>
+                        <div class="carousel-viewport" id="carouselViewport">
+                            <div class="carousel-slide">
+                                <div class="empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                    Dodaj pierwsze zdjęcia z galerii lub wklej obraz ze schowka (Ctrl+V)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="nav-arrow next" id="nextBtn" type="button" aria-label="Następne zdjęcie">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+            <p class="preview-hint">Wskazówka: możesz wkleić zrzut ekranu przez Ctrl+V, ustawić kadr i zapisać gotową kompozycję jako PNG.</p>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $ = (id) => document.getElementById(id);
+            const brandLogo = document.querySelector('.brand-logo');
+            if (brandLogo) brandLogo.addEventListener('error', () => { brandLogo.style.display = 'none'; });
+
+            const inputTitle = $('inputTitle');
+            const inputSubtitle = $('inputSubtitle');
+            const displayTitle = $('displayTitle');
+            const displaySubtitle = $('displaySubtitle');
+            const textColorPicker = $('textColorPicker');
+            const textColorValue = $('textColorValue');
+            const bgColorPicker = $('bgColorPicker');
+            const bgColor2Picker = $('bgColor2Picker');
+            const bgColorValue = $('bgColorValue');
+            const bgColor2Value = $('bgColor2Value');
+            const bgMode = $('bgMode');
+            const gradientAngle = $('gradientAngle');
+            const gradientAngleValue = $('gradientAngleValue');
+            const gradientAngleGroup = $('gradientAngleGroup');
+            const secondColorGroup = $('secondColorGroup');
+            const blurEnabled = $('blurEnabled');
+            const blurAmount = $('blurAmount');
+            const blurAmountValue = $('blurAmountValue');
+            const canvasGlow = $('canvasGlow');
+            const canvasTarget = $('canvasTarget');
+            const previewArea = document.querySelector('.preview-area');
+            const phoneWrapper = $('phoneWrapper');
+            const phoneMockup = $('phoneMockup');
+            const fileInput = $('fileInput');
+            const dropZone = $('dropZone');
+            const carouselViewport = $('carouselViewport');
+            const prevBtn = $('prevBtn');
+            const nextBtn = $('nextBtn');
+            const exportBtn = $('exportBtn');
+            const galleryStatus = $('galleryStatus');
+            const clearGalleryBtn = $('clearGalleryBtn');
+            const formatSelect = $('formatSelect');
+            const customDimensions = $('customDimensions');
+            const customWidth = $('customWidth');
+            const customHeight = $('customHeight');
+            const outputSize = $('outputSize');
+            const phonePreset = $('phonePreset');
+            const rotateX = $('rotateX');
+            const rotateY = $('rotateY');
+            const rotateZ = $('rotateZ');
+
+            const formatPresets = {
+                story: { width: 1080, height: 1920 },
+                portrait: { width: 1080, height: 1350 },
+                square: { width: 1080, height: 1080 },
+                landscape: { width: 1920, height: 1080 },
+                classic: { width: 1080, height: 1440 }
+            };
+            const phonePresets = {
+                front: { x: 0, y: 0, z: 0, landscape: false },
+                left3d: { x: 3, y: -22, z: -4, landscape: false },
+                right3d: { x: 3, y: 22, z: 4, landscape: false },
+                sideleft: { x: 0, y: -68, z: -2, landscape: false },
+                sideright: { x: 0, y: 68, z: 2, landscape: false },
+                tilted: { x: 11, y: -18, z: -10, landscape: false },
+                landscape: { x: 0, y: 0, z: 0, landscape: true }
+            };
+
+            let imageCount = 0;
+            const imageUrls = [];
+            let selectedWidth = 1080;
+            let selectedHeight = 1920;
+            let phoneBaseAngle = 0;
+            let phoneIsLandscape = false;
+            let activePhonePreset = 'front';
+            updateGalleryStatus();
+            renderBackground();
+            updateCanvasLayout();
+            applyPhonePreset('auto');
+
+            inputTitle.addEventListener('input', () => { displayTitle.textContent = inputTitle.value || ' '; });
+            inputSubtitle.addEventListener('input', () => { displaySubtitle.textContent = inputSubtitle.value || ' '; });
+
+            textColorPicker.addEventListener('input', () => {
+                displayTitle.style.color = textColorPicker.value;
+                displaySubtitle.style.color = textColorPicker.value;
+                textColorValue.textContent = textColorPicker.value;
+            });
+
+            function getSelectedDimensions() {
+                if (formatSelect.value !== 'custom') return formatPresets[formatSelect.value] || formatPresets.story;
+                const width = Number.parseInt(customWidth.value, 10);
+                const height = Number.parseInt(customHeight.value, 10);
+                if (!Number.isFinite(width) || !Number.isFinite(height)) return null;
+                if (width < 320 || width > 6000 || height < 320 || height > 6000) return null;
+                return { width, height };
+            }
+
+            function formatRatioText(width, height) {
+                const gcd = (a, b) => b ? gcd(b, a % b) : a;
+                const divisor = gcd(width, height) || 1;
+                return `${width / divisor}:${height / divisor}`;
+            }
+
+            function updateFormat() {
+                const isCustom = formatSelect.value === 'custom';
+                customDimensions.hidden = !isCustom;
+                const dimensions = getSelectedDimensions();
+                if (!dimensions) {
+                    outputSize.innerHTML = 'Wpisz szerokość i wysokość z zakresu 320–6000 px.';
+                    return;
+                }
+                selectedWidth = dimensions.width;
+                selectedHeight = dimensions.height;
+                outputSize.innerHTML = `PNG: <strong>${selectedWidth} × ${selectedHeight} px</strong><br>Proporcje: ${formatRatioText(selectedWidth, selectedHeight)}`;
+                if (phonePreset.value === 'auto') applyPhonePreset('auto', false);
+                updateCanvasLayout();
+            }
+
+            formatSelect.addEventListener('change', updateFormat);
+            [customWidth, customHeight].forEach(input => {
+                input.addEventListener('input', () => {
+                    if (formatSelect.value !== 'custom') formatSelect.value = 'custom';
+                    updateFormat();
+                });
+                input.addEventListener('change', () => {
+                    if (input.value !== '') {
+                        input.value = String(Math.min(6000, Math.max(320, Number.parseInt(input.value, 10) || 1080)));
+                    }
+                    updateFormat();
+                });
+            });
+
+            function renderBackground() {
+                const color1 = bgColorPicker.value;
+                const color2 = bgColor2Picker.value;
+                const angle = Number(gradientAngle.value);
+                let background;
+                if (bgMode.value === 'solid') {
+                    background = color1;
+                } else if (bgMode.value === 'radial') {
+                    background = `radial-gradient(circle at 24% 18%, ${color1} 0%, ${color2} 100%)`;
+                } else {
+                    background = `linear-gradient(${angle}deg, ${color1} 0%, ${color2} 100%)`;
+                }
+                canvasTarget.style.setProperty('--canvas-bg', background);
+                canvasTarget.style.background = background;
+                canvasGlow.style.background = `radial-gradient(ellipse at 26% 28%, ${color1} 0%, transparent 65%), radial-gradient(ellipse at 72% 72%, ${color2} 0%, transparent 68%)`;
+                const glowOn = blurEnabled.checked && Number(blurAmount.value) > 0;
+                canvasGlow.style.filter = `blur(${Number(blurAmount.value)}px)`;
+                canvasGlow.style.opacity = glowOn ? '0.72' : '0';
+                secondColorGroup.hidden = bgMode.value === 'solid';
+                gradientAngleGroup.hidden = bgMode.value !== 'linear';
+                gradientAngleValue.textContent = `${angle}°`;
+                bgColorValue.textContent = color1;
+                bgColor2Value.textContent = color2;
+                blurAmount.disabled = !blurEnabled.checked;
+                blurAmountValue.textContent = `${blurAmount.value} px`;
+            }
+
+            [bgColorPicker, bgColor2Picker, bgMode, gradientAngle, blurEnabled, blurAmount].forEach(control => {
+                control.addEventListener('input', renderBackground);
+                control.addEventListener('change', renderBackground);
+            });
+
+            function updateCanvasLayout() {
+                const dimensions = getSelectedDimensions();
+                if (!dimensions) return;
+                selectedWidth = dimensions.width;
+                selectedHeight = dimensions.height;
+                const ratio = selectedWidth / selectedHeight;
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const isMobile = viewportWidth <= 640;
+                const isTablet = viewportWidth <= 1120;
+                const areaWidth = previewArea ? previewArea.clientWidth : viewportWidth - 48;
+                const maxWidth = Math.max(150, Math.min(600, areaWidth - (isMobile ? 12 : 38)));
+                // Na małych ekranach podgląd zajmuje ok. 40% wysokości, żeby nie zasłaniać całego formularza.
+                const heightLimit = isMobile
+                    ? Math.min(380, viewportHeight * 0.36)
+                    : isTablet
+                        ? Math.min(560, viewportHeight * 0.55)
+                        : Math.min(780, viewportHeight - 160);
+                const maxHeight = Math.max(150, heightLimit);
+                const previewWidth = Math.max(120, Math.min(maxWidth, maxHeight * ratio));
+                const previewHeight = previewWidth / ratio;
+                let scale;
+                if (ratio >= 1.4 && phoneIsLandscape) {
+                    scale = Math.min(previewWidth / 700, previewHeight / 470, 1);
+                } else {
+                    scale = Math.min(previewWidth / 480, previewHeight / 820, 1);
+                }
+                scale = Math.max(0.18, scale);
+                canvasTarget.style.width = `${previewWidth}px`;
+                canvasTarget.style.height = `${previewHeight}px`;
+                canvasTarget.style.setProperty('--composition-scale', String(scale));
+                const phoneWidth = 310 * scale;
+                const phoneHeight = 630 * scale;
+                const stageWidth = phoneIsLandscape ? phoneHeight : phoneWidth;
+                const stageHeight = phoneIsLandscape ? phoneWidth : phoneHeight;
+                phoneWrapper.style.setProperty('--phone-width', `${phoneWidth}px`);
+                phoneWrapper.style.setProperty('--phone-height', `${phoneHeight}px`);
+                phoneWrapper.style.setProperty('--phone-stage-width', `${stageWidth}px`);
+                phoneWrapper.style.setProperty('--phone-stage-height', `${stageHeight}px`);
+            }
+
+            function updatePhoneTransform() {
+                const x = Number(rotateX.value);
+                const y = Number(rotateY.value);
+                const z = Number(rotateZ.value);
+                phoneWrapper.style.setProperty('--phone-rotate-x', `${x}deg`);
+                phoneWrapper.style.setProperty('--phone-rotate-y', `${y}deg`);
+                phoneWrapper.style.setProperty('--phone-rotate-z', `${phoneBaseAngle + z}deg`);
+                $('rotateXValue').textContent = `${x}°`;
+                $('rotateYValue').textContent = `${y}°`;
+                $('rotateZValue').textContent = `${z}°`;
+                updateCanvasLayout();
+            }
+
+            function applyPhonePreset(presetName, updateSelect = true) {
+                if (updateSelect) phonePreset.value = presetName;
+                let preset;
+                if (presetName === 'auto') {
+                    const dimensions = getSelectedDimensions() || { width: 1080, height: 1920 };
+                    preset = (dimensions.width / dimensions.height >= 1.4)
+                        ? { ...phonePresets.landscape }
+                        : { ...phonePresets.front };
+                } else if (presetName === 'custom') {
+                    updatePhoneTransform();
+                    return;
+                } else {
+                    preset = { ...(phonePresets[presetName] || phonePresets.front) };
+                }
+                activePhonePreset = presetName;
+                phoneIsLandscape = Boolean(preset.landscape);
+                phoneBaseAngle = phoneIsLandscape ? 90 : 0;
+                rotateX.value = String(preset.x);
+                rotateY.value = String(preset.y);
+                rotateZ.value = String(preset.z);
+                updatePhoneTransform();
+            }
+
+            phonePreset.addEventListener('change', () => applyPhonePreset(phonePreset.value));
+            [rotateX, rotateY, rotateZ].forEach(input => {
+                input.addEventListener('input', () => {
+                    if (phonePreset.value !== 'custom') phonePreset.value = 'custom';
+                    updatePhoneTransform();
+                });
+            });
+            $('resetPhoneBtn').addEventListener('click', () => applyPhonePreset('auto'));
+            window.addEventListener('resize', updateCanvasLayout);
+
+            function updateGalleryStatus() {
+                if (imageCount === 0) galleryStatus.textContent = 'Brak zdjęć w galerii';
+                else if (imageCount === 1) galleryStatus.textContent = '1 zdjęcie w galerii';
+                else galleryStatus.textContent = `${imageCount} zdjęć w galerii`;
+                clearGalleryBtn.disabled = imageCount === 0;
+            }
+
+            function showEmptyGallery() {
+                carouselViewport.innerHTML = `
+                    <div class="carousel-slide">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            Dodaj pierwsze zdjęcia z galerii lub wklej obraz ze schowka (Ctrl+V)
+                        </div>
+                    </div>`;
+            }
+
+            function addImagesToCarousel(files) {
+                const imageFiles = Array.from(files || []).filter(file => file.type && file.type.startsWith('image/'));
+                if (imageFiles.length === 0) return;
+                if (imageCount === 0) carouselViewport.innerHTML = '';
+                imageFiles.forEach(file => {
+                    const imageUrl = URL.createObjectURL(file);
+                    imageUrls.push(imageUrl);
+                    const slide = document.createElement('div');
+                    slide.className = 'carousel-slide';
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = file.name ? `Podgląd: ${file.name}` : 'Podgląd dodanego zdjęcia';
+                    img.draggable = false;
+                    slide.appendChild(img);
+                    carouselViewport.appendChild(slide);
+                    imageCount++;
+                });
+                updateGalleryStatus();
+                carouselViewport.scrollTo({ left: carouselViewport.scrollWidth, behavior: 'smooth' });
+            }
+
+            fileInput.addEventListener('change', event => {
+                addImagesToCarousel(event.target.files);
+                fileInput.value = '';
+            });
+            clearGalleryBtn.addEventListener('click', () => {
+                imageUrls.forEach(url => URL.revokeObjectURL(url));
+                imageUrls.length = 0;
+                imageCount = 0;
+                showEmptyGallery();
+                updateGalleryStatus();
+                carouselViewport.scrollTo({ left: 0, behavior: 'smooth' });
+            });
+            dropZone.addEventListener('dragover', event => { event.preventDefault(); dropZone.classList.add('dragover'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', event => {
+                event.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (event.dataTransfer && event.dataTransfer.files) addImagesToCarousel(event.dataTransfer.files);
+            });
+            window.addEventListener('paste', event => {
+                const items = event.clipboardData && event.clipboardData.items;
+                if (!items) return;
+                const pastedFiles = [];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type && items[i].type.startsWith('image/')) {
+                        const file = items[i].getAsFile();
+                        if (file) pastedFiles.push(file);
+                    }
+                }
+                if (pastedFiles.length > 0) { event.preventDefault(); addImagesToCarousel(pastedFiles); }
+            });
+            prevBtn.addEventListener('click', () => carouselViewport.scrollBy({ left: -carouselViewport.clientWidth, behavior: 'smooth' }));
+            nextBtn.addEventListener('click', () => carouselViewport.scrollBy({ left: carouselViewport.clientWidth, behavior: 'smooth' }));
+
+            exportBtn.addEventListener('click', async () => {
+                if (typeof htmlToImage === 'undefined') {
+                    const reason = window.__htmlToImageLoadFailed
+                        ? 'Nie udało się załadować biblioteki eksportu z obu źródeł.'
+                        : 'Biblioteka eksportu jeszcze się ładuje.';
+                    alert(`${reason} Sprawdź połączenie z internetem. Jeśli otwierasz plik bezpośrednio jako file://, uruchom go z GitHub Pages lub lokalnego serwera HTTP i spróbuj ponownie.`);
+                    return;
+                }
+                const dimensions = getSelectedDimensions();
+                if (!dimensions) {
+                    alert('Sprawdź własny rozmiar grafiki. Szerokość i wysokość muszą mieścić się w zakresie 320–6000 px.');
+                    return;
+                }
+                const originalButtonContent = exportBtn.innerHTML;
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = 'Przygotowuję PNG…';
+                try {
+                    updateCanvasLayout();
+                    renderBackground();
+                    updatePhoneTransform();
+                    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+                    const previewImages = Array.from(canvasTarget.querySelectorAll('img'));
+                    await Promise.all(previewImages.map(img => {
+                        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                        if (typeof img.decode === 'function') return img.decode().catch(() => {});
+                        return new Promise(resolve => {
+                            img.addEventListener('load', resolve, { once: true });
+                            img.addEventListener('error', resolve, { once: true });
+                        });
+                    }));
+                    const dataUrl = await htmlToImage.toPng(canvasTarget, {
+                        cacheBust: false,
+                        pixelRatio: 1,
+                        canvasWidth: dimensions.width,
+                        canvasHeight: dimensions.height,
+                        filter: node => !node.classList || !node.classList.contains('nav-arrow')
+                    });
+                    const link = document.createElement('a');
+                    link.download = `mockup-${dimensions.width}x${dimensions.height}-${Date.now()}.png`;
+                    link.href = dataUrl;
+                    link.click();
+                } catch (error) {
+                    console.error('Błąd podczas generowania grafiki:', error);
+                    const details = error && error.message ? `\n\nSzczegóły: ${error.message}` : '';
+                    alert(`Nie udało się wygenerować grafiki. Spróbuj ponownie lub zmniejsz własny rozmiar eksportu. Jeśli otwierasz plik przez file://, przetestuj wersję na GitHub Pages.${details}`);
+                } finally {
+                    exportBtn.innerHTML = originalButtonContent;
+                    exportBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
